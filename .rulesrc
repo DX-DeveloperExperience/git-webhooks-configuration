@@ -3,7 +3,7 @@
 options:
   executeAllRules: true
   enableRules: true
-  enableGroups: true
+  enableGroups: false
   allRuleResultInOne: false
 
 rules:
