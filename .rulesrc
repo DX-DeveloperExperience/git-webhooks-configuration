@@ -70,7 +70,7 @@ rules:
     onError:
       - callback: LoggerRunnable
         args:
-          message: 'Caution, commit(s): {{#data.commits}}{{sha}},{{/data.commits}} do not respect Good Practices!'
+          message: 'Caution, commit(s): {{#data.commits}}{{message}}{{sha}},{{/data.commits}} do not respect Good Practices!'
     onBoth:
       - callback: UpdateCommitStatusRunnable
         args:
