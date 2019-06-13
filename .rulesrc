@@ -60,7 +60,7 @@ rules:
     onSuccess:
       - callback : WebhookRunnable  
         args:
-          url: 'https://webhook.site/0123-4567-89ab-cdef'
+          url: 'https://webhook.site/349edb02-c193-4192-a221-8e2a63f8bf3b'
           data: {
             user: 'bot',
             content: '{{#data.commits}}{{sha}} =
