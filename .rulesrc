@@ -1,0 +1,122 @@
+--- # Rules config file
+
+options:
+  executeAllRules: true
+  enableRules: true
+  enableGroups: false
+  allRuleResultInOne: false
+
+rules:
+  
+  # BRANCH
+  - name: branchName
+    options:
+      regexp: '^(fix|feature)/.*'
+    onError:
+      - callback: LoggerRunnable
+        args:
+          message: 'Branch {{data.branch}} does not begin with fix or feature.'
+    onSuccess:
+      - callback: CreatePullRequestRunnable
+        args:
+          title: 'WIP: {{data.branch}}'
+          description: 'Work in Progress Pull Request'
+          draft: true
+
+  # PULL REQUESTS
+  - name: pullRequestTitle
+    options:
+      regexp: '^(WIP|FIX)\s:.*'
+    onError:
+      - callback: CommentPullRequestRunnable
+        args:
+          comment: 'ping @bastienterrier'
+  - name: checkPullRequestStatus
+    options:
+      status: reopened
+    onSuccess:
+      - callback: SendEmailRunnable
+        args:
+          to: bastien.terrier@gmail.com
+          subject: 'Pull Request #{{data.pullRequestNumber}} reopened '
+          message: '<b>{{data.pullRequestTitle}}</b> has been reopened, please pay attention!'
+  - name: pullRequestComment
+    options:
+      regexp: '^ping @bastienterrier$'
+    onSuccess:
+      - callback: LoggerRunnable
+        args:
+          type: warn
+          message: 'Someone ping you!'
+
+  # COMMITS
+  - name: commitMessage
+    options:
+      regexp: '^(build|ci|docs|feat|fix|perf|refactor|style|test|release)(\([a-z-]*\))?:\s(.*?)(\(#[1-9][0-9]*(?:, #[1-9][0-9]*)*\))?$'
+      maxLength: 50
+      branches:
+        ignore:
+          - gh-pages
+    onSuccess:
+      - callback : WebhookRunnable  
+        args:
+          url: 'https://webhook.site/0123-4567-89ab-cdef'
+          data: {
+            user: 'bot',
+            content: '{{#data.commits}}{{sha}} =
+            Object: {{matches.1}} | Scope: {{matches.2}} | Issue: {{matches.3}}
+            {{/data.commits}}'
+          }
+    onError:
+      - callback: LoggerRunnable
+        args:
+          message: 'Caution, commit(s): {{#data.commits}}{{sha}},{{/data.commits}} do not respect Good Practices!'
+    onBoth:
+      - callback: UpdateCommitStatusRunnable
+        args:
+          failTargetUrl: 'https://gist.github.com/stephenparish/9941e89d80e2bc58a153#examples'
+          successTargetUrl: 'https://gist.github.com/stephenparish/9941e89d80e2bc58a153#examples'
+          successDescriptionMessage: 'Commit message matches the Good Practices!'
+          failDescriptionMessage: 'Caution, your commit message do not matches the Good Practices!'
+  - name: commitMessage
+    options:
+      regexp: '#deploy'
+    onSuccess:
+      - callback : DeployFolderRunnable
+        args:
+          folder: docs
+          branch: gh-pages
+  - name: commitMessage
+    options:
+      regexp: '#(v.*)#'
+    onSuccess:
+      - callback : CreateTagRunnable
+        args:
+          tag: '{{data.commits.0.matches.1}}'
+          message: 'new version !'
+  - name: checkAddedFiles
+    options:
+      regexp: '.*\.exe$'
+    onSuccess:
+      - callback: DeleteFilesRunnable
+        args:
+          message: 'removing .exe file'
+
+  #ISSUES
+  - name: issueTitle
+    options:
+      regexp: '(fix|Fix)\s.*'
+    onSuccess:
+      - callback: SendEmailRunnable
+        args:
+          to: bastien.terrier@gmail.com
+          subject: 'New issue: "{{data.issue.title}}" (#{{data.issue.number}})'
+          message: '<b>{{data.issue.title}}</b> has been created!<br>{{data.issue.description}}'
+  - name: issueComment
+    options:
+      regexp: '^ping @bastienterrier$'
+    onSuccess:
+      - callback: LoggerRunnable
+        args:
+          type: warn
+          message: 'Someone ping you!'
