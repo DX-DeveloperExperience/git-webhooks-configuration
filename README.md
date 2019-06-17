@@ -1,2 +1,2 @@
-# git-webhooks-configuration
-Default configuration file for Git-Webhooks application
+# Hygie Configuration
+Default configuration file for Hygie application
