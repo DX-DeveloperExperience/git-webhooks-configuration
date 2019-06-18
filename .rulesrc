@@ -26,7 +26,7 @@ rules:
   # PULL REQUESTS
   - name: pullRequestTitle
     options:
-      regexp: '^(WIP|FIX)\s:.*'
+      regexp: '^(WIP|FIX):\s.*'
     onError:
       - callback: CommentPullRequestRunnable
         args:
