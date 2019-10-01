@@ -64,7 +64,7 @@ rules:
           data: {
             user: 'bot',
             content: '{{#data.commits}}{{sha}} =
-            Object: {{matches.1}} | Scope: {{matches.2}} | Issue: {{matches.3}}
+            Object: {{matches.[1]}} | Scope: {{matches.[2]}} | Issue: {{matches.[3]}}
             {{/data.commits}}'
           }
     onError:
@@ -92,7 +92,7 @@ rules:
     onSuccess:
       - callback : CreateTagRunnable
         args:
-          tag: '{{data.commits.0.matches.1}}'
+          tag: '{{data.commits.[0].matches.[1]}}'
           message: 'new version !'
   - name: checkAddedFiles
     options:
